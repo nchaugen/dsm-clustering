@@ -11,7 +11,7 @@ object dsmClustering {
   def main(args: Array[String]) {
 
     println("Finding files under version control.")
-    val files = findFiles("*.java")
+    val files = findFiles("/Users/nch/Coding/dsm/fitnesse/src/fitnesse/*.java")
 //    val files = Array("a", "b", "c", "d", "e", "f", "g") //findFiles("*.java")
     println("Finding commits for each file.")
     val fileCommits = findCommits(files)
@@ -187,7 +187,7 @@ object dsmClustering {
   }
 
   def findCommits(files: Array[String]): Map[String, Set[String]] = {
-    val filesCommitsFile = new File("/Users/nch/Coding/csm/filesCommits.txt")
+    val filesCommitsFile = new File("filesCommits.txt")
     if (filesCommitsFile.exists()) {
       val inputStream = new FileInputStream(filesCommitsFile)
       try {
@@ -213,7 +213,7 @@ object dsmClustering {
   }
 
   def findFiles(arg: String): Array[String] = {
-    val filesFile = new File("/Users/nch/Coding/csm/files.txt")
+    val filesFile = new File("files.txt")
     if (filesFile.exists()) {
       val inputStream = new FileInputStream(filesFile)
       try {

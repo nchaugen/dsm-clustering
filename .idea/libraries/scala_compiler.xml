@@ -1,0 +1,22 @@
+<component name="libraryTable">
+  <library name="scala-compiler">
+    <CLASSES>
+      <root url="jar:///usr/local/opt/scala/idea/lib/scala-compiler.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/scala-library.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/akka-actor_2.11-2.3.4.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/config-1.2.1.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/jline-2.12.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/scala-actors-2.11.0.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/scala-actors-migration_2.11-1.1.0.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/scala-continuations-library_2.11-1.0.2.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/scala-continuations-plugin_2.11.2-1.0.2.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/scala-parser-combinators_2.11-1.0.2.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/scala-reflect.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/scala-swing_2.11-1.0.1.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/scala-xml_2.11-1.0.2.jar!/" />
+      <root url="jar:///usr/local/opt/scala/idea/lib/scalap-2.11.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
