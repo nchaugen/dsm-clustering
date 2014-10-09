@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/csm.iml" filepath="$PROJECT_DIR$/csm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dsm-clustering/dsm-clustering.iml" filepath="$PROJECT_DIR$/dsm-clustering/dsm-clustering.iml" />
     </modules>
   </component>
 </project>

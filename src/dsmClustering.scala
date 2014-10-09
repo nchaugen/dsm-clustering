@@ -6,7 +6,7 @@ import org.apache.commons.io.IOUtils
 import scala.sys.process._
 import scala.util.Random
 
-object csm {
+object dsmClustering {
 
   def main(args: Array[String]) {
 
