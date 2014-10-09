@@ -12,58 +12,34 @@ object dsmClustering {
 
     println("Finding files under version control.")
     val files = findFiles("/Users/nch/Coding/dsm/fitnesse/src/fitnesse/*.java")
-//    val files = Array("a", "b", "c", "d", "e", "f", "g") //findFiles("*.java")
+
     println("Finding commits for each file.")
     val fileCommits = findCommits(files)
-//    val fileCommits = Map(
-//        "a" -> Set("abc", "ad"),
-//        "b" -> Set("abc"),
-//        "c" -> Set("abc", "cg"),
-//        "d" -> Set("ad", "defg"),
-//        "e" -> Set("defg"),
-//        "f" -> Set("defg"),
-//        "g" -> Set("defg", "cg")
-//      )
-
-    def printClusters(cls: Vector[Set[Int]]) {
-      println
-      cls.filter(_.size > 1).foreach((cli) => {
-        val clFiles = cli.map(files(_))
-        val commitsPerFile: Set[Set[String]] = clFiles.map(fileCommits(_))
-        val combinedCommits = commitsPerFile.foldLeft(Set.empty[String])((x, commits) => {
-          x union commits
-        })
-        val commonCommits = commitsPerFile.foldLeft(combinedCommits)((x, commits) => {
-          x intersect commits
-        })
-
-        println("Clustered files:")
-        println(clFiles.mkString("\n"))
-        println
-        println("Commits combined:")
-        combinedCommits.foreach((commit) => {
-          val filesWithCommit = clFiles.filter(fileCommits(_).contains(commit)).mkString(", ")
-          println(f"${commit.split(" ")(0)} ($filesWithCommit)")
-        })
-        println
-        println("Commits in common:")
-        println(commonCommits.mkString("\n"))
-        println
-        println
-      })
-    }
 
     println("Creating DSM")
-    val dsm: Vector[Vector[Double]] = createDsm(files, fileCommits)
-    val allElements: Set[Int] = files.indices.toSet
+    val dsm = createDsm(files, fileCommits)
+    val allElements = files.indices.toSet
+
+    //    for ((row, i) <- dsm.sliding(files.length, files.length).zipWithIndex) {
+    //      val filename = files(i)
+    //      println(f"$filename,${row.mkString(",")}")
+    //    }
 
     println("Creating initial clusters")
-    val initialCls: Set[Set[Int]] = createInitialClusters(allElements, dsm)
-    printClusters(initialCls.toVector)
+    val initialCls = createInitialClusters(allElements, dsm)
+    printClusters(initialCls.toVector, files, fileCommits)
 
     println("Creating secondary clusters")
-    var secondaryCls: Vector[Set[Int]] = createSecondaryClusters(allElements, initialCls)
-    printClusters(secondaryCls)
+    val secondaryCls = createSecondaryClusters(allElements, initialCls)
+    printClusters(secondaryCls, files, fileCommits)
+
+    println("Creating final clusters")
+    val finalCls = createFinalClusters(secondaryCls, dsm)
+    printClusters(finalCls, files, fileCommits)
+
+  }
+
+  def createFinalClusters(secondaryCls: Vector[Set[Int]], dsm: Vector[Vector[Double]]): Vector[Set[Int]] = {
 
     def dependency(secV: Int, secCl: Set[Int]) = {
       val dep = secCl.map((y) => dsm(secV)(y)).sum / secCl.size
@@ -77,40 +53,29 @@ object dsmClustering {
       else bestTuple._2
     }
 
-
-    println("Creating final clusters")
+    var finalCls = secondaryCls
     var done = false
     var changes = 0
     while (!done && changes < 10000) {
       var toCl = Set.empty[Int]
       var variable = Option.empty[Int]
 
-      secondaryCls.find((secCl1) => {
+      finalCls.find((secCl1) => {
         variable = secCl1.find((j) => {
-          toCl = bestFit(secondaryCls, secCl1, j)
+          toCl = bestFit(finalCls, secCl1, j)
           toCl.intersect(secCl1).isEmpty
         })
         variable.nonEmpty
       }) match {
         case Some(fromCl) =>
-          secondaryCls = secondaryCls.updated(secondaryCls.indexOf(fromCl), fromCl - variable.get)
-          secondaryCls = secondaryCls.updated(secondaryCls.indexOf(toCl), toCl + variable.get)
+          finalCls = finalCls.updated(finalCls.indexOf(fromCl), fromCl - variable.get)
+          finalCls = finalCls.updated(finalCls.indexOf(toCl), toCl + variable.get)
           done = false
           changes += 1
         case None => done = true
       }
     }
-
-    printClusters(secondaryCls)
-
-
-
-
-//    for ((row, i) <- csm.sliding(files.length, files.length).zipWithIndex) {
-//      val filename = files(i)
-//      println(f"$filename,${row.mkString(",")}")
-//    }
-
+    finalCls
   }
 
   def createSecondaryClusters(allElements: Set[Int], initialCls: Set[Set[Int]]): Vector[Set[Int]] = {
@@ -191,7 +156,7 @@ object dsmClustering {
     if (filesCommitsFile.exists()) {
       val inputStream = new FileInputStream(filesCommitsFile)
       try {
-        return JacksMapper.readValue[Map[String, Set[String]]](IOUtils.toString(inputStream))
+        JacksMapper.readValue[Map[String, Set[String]]](IOUtils.toString(inputStream))
       } finally {
         inputStream.close()
       }
@@ -205,7 +170,7 @@ object dsmClustering {
       val outputStream = new FileOutputStream(filesCommitsFile)
       try {
         IOUtils.write(JacksMapper.writeValueAsString(filesCommits), outputStream)
-        return filesCommits
+        filesCommits
       } finally {
         outputStream.close()
       }
@@ -217,7 +182,7 @@ object dsmClustering {
     if (filesFile.exists()) {
       val inputStream = new FileInputStream(filesFile)
       try {
-        return JacksMapper.readValue[Array[String]](IOUtils.toString(inputStream))
+        JacksMapper.readValue[Array[String]](IOUtils.toString(inputStream))
       } finally {
         inputStream.close()
       }
@@ -228,12 +193,42 @@ object dsmClustering {
       val outputStream = new FileOutputStream(filesFile)
       try {
         IOUtils.write(JacksMapper.writeValueAsString(files), outputStream)
-        return files
+        files
       } finally {
         outputStream.close()
       }
     }
   }
+
+  def printClusters(cls: Vector[Set[Int]], files: Array[String], fileCommits: Map[String, Set[String]]) {
+    println()
+    cls.filter(_.size > 1).foreach((cli) => {
+      val clFiles = cli.map(files(_))
+      val commitsPerFile: Set[Set[String]] = clFiles.map(fileCommits(_))
+      val combinedCommits = commitsPerFile.foldLeft(Set.empty[String])((x, commits) => {
+        x union commits
+      })
+      val commonCommits = commitsPerFile.foldLeft(combinedCommits)((x, commits) => {
+        x intersect commits
+      })
+
+      println("Clustered files:")
+      println(clFiles.mkString("\n"))
+      println()
+      println("Commits combined:")
+      combinedCommits.foreach((commit) => {
+        val filesWithCommit = clFiles.filter(fileCommits(_).contains(commit)).mkString(", ")
+        println(f"${commit.split(" ")(0)} ($filesWithCommit)")
+      })
+      println()
+      println("Commits in common:")
+      println(commonCommits.mkString("\n"))
+      println()
+      println()
+    })
+  }
+
+
 }
 //csm.main(args)
 
