@@ -22,7 +22,7 @@ object elkiDistanceGenerator {
   }
 
   def writeElkiDistance(files: Array[String], fileCommits: Map[String, Set[String]]) = {
-    val elkiDistanceFile = new File("fitnesse.elki")
+    val elkiDistanceFile = new File("fitnesse.distance.txt")
     if (elkiDistanceFile.createNewFile()) {
       val writer = new BufferedWriter(new FileWriter(elkiDistanceFile))
 
@@ -41,19 +41,21 @@ object elkiDistanceGenerator {
       val normalizedLinkage = allLinkage.map((d) => {(d._1, d._2, normalize(d._3, dMin, dMax))})
       normalizedLinkage.foreach((d) => {
         if (d._2 == (d._1+1)) {
-          writer.write(f"${d._1} ${d._1} 1.00000")
+          writer.write(f"${d._1} ${d._1} 1.0")
           writer.newLine()
         }
         writer.write(f"${d._1} ${d._2} ${d._3}%1.5f")
         writer.newLine()
       })
+      writer.write(f"${normalizedLinkage.last._2} ${normalizedLinkage.last._2} 1.0")
+      writer.newLine()
       writer.close()
 
     }
   }
 
   def writeElkiFiles(files: Array[String]) = {
-    val elkiDistanceFile = new File("fitnesse.elkidb")
+    val elkiDistanceFile = new File("fitnesse.files.txt")
     if (elkiDistanceFile.createNewFile()) {
       val writer = new BufferedWriter(new FileWriter(elkiDistanceFile))
 
