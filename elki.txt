@@ -1,0 +1,1 @@
+java -jar lib/elki.jar -verbose -dbc.in dsm.files.txt -dbc.filter FixedDBIDsFilter -dbc.startid 0 -algorithm.distancefunction external.FileBasedDoubleDistanceFunction -distance.matrix dsm.distance.txt -algorithm clustering.OPTICSXi -opticsxi.xi 0.1 -optics.epsilon 1.0 -optics.minpts 3
